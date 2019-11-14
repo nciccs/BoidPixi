@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>Test</title>
+    <style> body {padding: 0; margin: 0;} </style>
+    <script src="pixi.min.js"></script>
+
+    <script src="Boid.js"></script>
+    <script src="Vector.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+    let type = "WebGL"
+    if(!PIXI.utils.isWebGLSupported())
+    {
+        type = "canvas"
+    }
+
+    PIXI.utils.sayHello(type);
+
+    let app = new PIXI.Application({width: 640, height: 480, antialias: false});
+
+    document.body.appendChild(app.view);
+
+    app.renderer.backgroundColor = 0x061639;
+
+    var allSprites = [];
+
+    let numSprites = 1000;
+
+    var boids = [];
+
+    const texture = PIXI.Texture.from("spaceship.png");
+
+    for(let i = 0; i < numSprites; i++)
+    {
+        let sprite = new PIXI.Sprite(texture);
+
+        let width = texture.width;
+        let height = texture.height;
+
+        sprite.anchor.set(0.5);
+        
+        sprite.x = Math.random() * (app.renderer.view.width);
+        sprite.y = Math.random() * (app.renderer.view.height);
+
+        app.stage.addChild(sprite);
+        allSprites.push(sprite);
+
+        boids.push(new Boid(sprite.x, sprite.y, app.renderer.view.width, app.renderer.view.height));
+    }
+
+    let start = Date.now();
+
+    app.ticker.add((delta) => {
+        let end = Date.now();
+        let elapsed = end - start;
+
+        if(elapsed > 2)
+        {
+            for(let i = 0; i < numSprites; i++)
+            {
+                if(allSprites[i])
+                {
+                    boids[i].run(boids);
+                    allSprites[i].angle = boids[i].velocity.angle()+90;
+                    allSprites[i].x = boids[i].position.x;
+                    allSprites[i].y = boids[i].position.y;
+                }
+            }
+            start = Date.now();
+        }
+    });
+    </script>
+  </body>
+</html>
